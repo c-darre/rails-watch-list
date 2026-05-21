@@ -1,9 +1,28 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+require 'open-uri'
+require 'json'
+
+puts "Nettoyage de la base de données..."
+Bookmark.destroy_all
+Movie.destroy_all
+List.destroy_all
+
+puts "Création des films depuis l'API TMDB (via le proxy Le Wagon)..."
+
+# On utilise l'URL du proxy Le Wagon qui n'a PAS besoin de clé API
+url = "https://tmdb.lewagon.com/movie/top_rated"
+
+user_serialized = URI.open(url).read
+movies = JSON.parse(user_serialized)
+
+movies["results"].each do |movie_hash|
+  puts "Création du film : #{movie_hash['title']}..."
+
+  Movie.create!(
+    title: movie_hash['title'],
+    overview: movie_hash['overview'],
+    poster_url: "https://image.tmdb.org/t/p/w500#{movie_hash['poster_path']}",
+    rating: movie_hash['vote_average']
+  )
+end
+
+puts "Terminé ! #{Movie.count} films ont été créés avec succès."

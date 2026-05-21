@@ -1,0 +1,53 @@
+<div class="bg-dark text-white p-5 mb-5 text-center shadow">
+  <h1 class="display-3"><%= @list.name %></h1>
+</div>
+
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <%= link_to "← Retour aux listes", lists_path, class: "btn btn-outline-secondary" %>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-md-8">
+      <div class="row">
+        <% @list.bookmarks.each do |bookmark| %>
+          <div class="col-12 col-sm-6 mb-4">
+            <div class="card shadow-sm h-100">
+              <%= image_tag bookmark.movie.poster_url, alt: bookmark.movie.title, class: "card-img-top" %>
+
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">
+                  <strong><%= bookmark.movie.title %></strong>
+                  <span class="text-warning">• <%= bookmark.movie.rating %> <i class="fa-solid fa-star"></i></span>
+                </h5>
+                <p class="card-text text-muted" style="font-size: 0.9em;"><%= bookmark.movie.overview %></p>
+                <div class="mt-auto">
+                  <hr>
+                  <p class="card-text">
+                    <i class="fa-solid fa-quote-left text-secondary"></i>
+                    <em><%= bookmark.comment %></em>
+                  </p>
+                  <%= link_to "Supprimer", bookmark_path(bookmark),
+                              data: { turbo_method: :delete, turbo_confirm: "Retirer ce film de la liste ?" },
+                              class: "text-danger text-decoration-none" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card p-4 shadow-sm sticky-top" style="top: 20px;">
+        <h4 class="mb-3">Ajouter un film</h4>
+
+        <%= simple_form_for [@list, @bookmark] do |f| %>
+          <%= f.association :movie, prompt: "Sélectionnez un film", input_html: { class: 'form-select mb-3' } %>
+          <%= f.input :comment, label: "Un commentaire ?", input_html: { rows: 3 } %>
+          <%= f.submit 'Ajouter à la liste', class: 'btn btn-success w-100 mt-3' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
